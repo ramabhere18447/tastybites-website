@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TastyBite — Menu</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1404/1404945.png">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body { background: #fff0f5; }
+    .hero { background: linear-gradient(90deg,#66293a,#7a3044); padding: 40px 0; margin-bottom: 24px;}
+    .menu-card img { height:250px; object-fit:cover; }
+    .price-badge { font-size:0.95rem; }
+    .filter-bar { gap:12px; }
+  </style>
+</head>
+
+<body>
+  <!-- Cart Modal -->
+  <div class="modal fade" id="cartModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Your Cart</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered text-center">
+            <thead class="table-dark">
+              <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="cart-items"></tbody>
+          </table>
+          <h4>Total: ₹<span id="cart-total">0</span></h4>
+        </div>
+        <div class="modal-footer">
+          <a href="billing.html" class="btn btn-success">Proceed to Checkout</a>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-danger sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">
+        <img src="https://cdn-icons-png.flaticon.com/512/1404/1404945.png" width="30" height="30" class="d-inline-block align-text-top" alt="logo"> TastyBite
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="menu.html">Menu</a></li>
+          <li class="nav-item"><a class="nav-link" href="restaurants.html">Restaurants</a></li>
+          <li class="nav-item"><a class="nav-link" href="offers.html">Offers</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item">
+            <button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#cartModal">
+              🛒 Cart (<span id="cart-count">0</span>)
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+<!-- Hero -->
+  <!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@800&display=swap" rel="stylesheet">
+
+<style>
+  .hero {
+    background: #f8c9d2;
+    padding: 60px 0;
+    font-family: 'Spectral', serif;
+    font-weight: 800; /* Extra Bold */
+  }
+
+  .hero h1 {
+    font-family: 'Spectral', serif;
+    font-weight: 800; /* Ensures bold applies to heading */
+  }
+
+  .hero p {
+    font-family: 'Spectral', serif;
+    font-weight: 400;
+  }
+</style>
+
+  <!-- Hero -->
+  <header class="hero text-center">
+    <div class="container">
+      <h1 class="display-6">Feast Your Eyes, Fill Your Belly</h1>
+      <p class="lead mb-0">Browse, filter, and order your favorites.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Filters -->
+    <div class="d-flex filter-bar mb-3 flex-wrap">
+      <div class="me-auto">
+        <div class="dropdown">
+          <button class="btn btn-outline-danger dropdown-toggle" id="categoryDropdown" data-bs-toggle="dropdown">
+            Category: All
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+            <li><a class="dropdown-item" href="#">All</a></li>
+            <li><a class="dropdown-item" href="#">Western Wonders</a></li>
+            <li><a class="dropdown-item" href="#">Desi Delights</a></li>
+            <li><a class="dropdown-item" href="#">Desserts</a></li>
+            <li><a class="dropdown-item" href="#">Healthy</a></li>
+            <li><a class="dropdown-item" href="#">Global Bites</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="input-group" style="max-width:360px;">
+        <input class="form-control" id="menuSearch" placeholder="Search dishes">
+        <button class="btn btn-danger" id="searchBtn">Search</button>
+      </div>
+    </div>
+
+    <!-- Menu Grid -->
+    <div class="row g-4 mb-5" id="menuGrid">
+      <!-- Example Card: Margherita Pizza -->
+      <div class="col-md-4" data-category="Western Wonders" data-name="Margherita Pizza">
+        <div class="card menu-card text-center">
+          <img src="C:\WT\self learning\rama\images\pizza.jpeg?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="Margherita Pizza">
+          <div class="card-body">
+            <h5 class="card-title">
+              Margherita Pizza <span class="badge bg-success price-badge">₹199</span>
+            </h5>
+            <p class="card-text text-muted">Classic cheese, basil, and tomato.</p>
+            <div class="d-flex gap-2 justify-content-center">
+              <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#pizzaModal">Details</button>
+              <button class="btn btn-primary" onclick="addToCart('Margherita Pizza', 199, 1)">Add to Cart</button>
+            </div>
+          </div>
+        </div>
+      </div>
+<!-- Details Modal -->
+<div class="modal fade" id="pizzaModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Margherita Pizza</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Margherita Pizza — tasty & fresh. Order now!</p>
+        <h4>₹199</h4>
+        <div class="d-flex justify-content-center align-items-center my-3">
+          <button class="btn btn-outline-danger" onclick="changeQty('pizza', -1)">-</button>
+          <input type="text" id="pizza-qty" value="1" class="form-control text-center mx-2" style="width:60px;" readonly>
+          <button class="btn btn-outline-success" onclick="changeQty('pizza', 1)">+</button>
+        </div>
+        <button class="btn btn-danger w-100" onclick="addToCart('Margherita Pizza', 199, document.getElementById('pizza-qty').value)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <!-- Add other cards similarly, like Smash Burger, Quinoa Salad, Masala Dosa, etc. -->
+ <!-- Card 2 -->
+      <!-- Product Card -->
+<div class="col-md-4" data-category="Western Wonders" data-name="Smash Burger">
+  <div class="card menu-card text-center">
+    <img src="C:\WT\self learning\rama\images\burger.jpeg?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="Smash Burger">
+    <div class="card-body">
+      <h5 class="card-title">
+        Smash Burger 
+        <span class="badge bg-success price-badge">₹249</span>
+      </h5>
+      <p class="card-text text-muted">Juicy patty, melted cheese & special sauce.</p>
+      <div class="d-flex gap-2 justify-content-center">
+        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#burgerModal">Details</button>
+        <button class="btn btn-primary" onclick="addToCart('Smash Burger', 249, 1)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Details Modal -->
+<div class="modal fade" id="burgerModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Smash Burger</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Smash Burger — tasty & fresh. Order now!</p>
+        <h4>₹249</h4>
+        <div class="d-flex justify-content-center align-items-center my-3">
+          <button class="btn btn-outline-danger" onclick="changeQty('burger', -1)">-</button>
+          <input type="text" id="burger-qty" value="1" class="form-control text-center mx-2" style="width:60px;" readonly>
+          <button class="btn btn-outline-success" onclick="changeQty('burger', 1)">+</button>
+        </div>
+        <button class="btn btn-danger w-100" onclick="addToCart('Smash Burger', 199, document.getElementById('burger-qty').value)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+      <!-- Card 3 -->
+      <!-- Product Card -->
+<div class="col-md-4" data-category="Healthy" data-name="Quinoa Salad">
+  <div class="card menu-card text-center">
+    <img src="C:\WT\self learning\rama\images\salad.jpeg?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="Quinoa Salad">
+    <div class="card-body">
+      <h5 class="card-title">
+        Quinoa Salad
+        <span class="badge bg-success price-badge">₹179</span>
+      </h5>
+      <p class="card-text text-muted">Fresh greens, quinoa, and citrus dressing.</p>
+      <div class="d-flex gap-2 justify-content-center">
+        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#saladModal">Details</button>
+        <button class="btn btn-primary" onclick="addToCart('Quinoa Salad', 179, 1)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Details Modal -->
+<div class="modal fade" id="saladModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Quinoa Salad</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Quinoa Salad — tasty & fresh. Order now!</p>
+        <h4>₹179</h4>
+        <div class="d-flex justify-content-center align-items-center my-3">
+          <button class="btn btn-outline-danger" onclick="changeQty('salad', -1)">-</button>
+          <input type="text" id="salad-qty" value="1" class="form-control text-center mx-2" style="width:60px;" readonly>
+          <button class="btn btn-outline-success" onclick="changeQty('salad', 1)">+</button>
+        </div>
+        <button class="btn btn-danger w-100" onclick="addToCart('Quinoa Salad', 179, document.getElementById('salad-qty').value)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+      <!-- Card 4 -->
+     <!-- Product Card -->
+<div class="col-md-4" data-category="Western Wonders" data-name="Alfredo Pasta">
+  <div class="card menu-card text-center">
+    <img src="C:\WT\self learning\rama\images\pasta.jpeg?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="Alfredo Pasta">
+    <div class="card-body">
+      <h5 class="card-title">
+        Alfredo Pasta
+        <span class="badge bg-success price-badge">₹219</span>
+      </h5>
+      <p class="card-text text-muted">Rich & creamy with garlic bread.</p>
+      <div class="d-flex gap-2 justify-content-center">
+        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#pastaModal">Details</button>
+        <button class="btn btn-primary" onclick="addToCart('Alfredo Pasta', 219, 1)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Details Modal -->
+<div class="modal fade" id="pastaModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Alfredo Pasta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Alfredo Pasta — tasty & fresh. Order now!</p>
+        <h4>₹219</h4>
+        <div class="d-flex justify-content-center align-items-center my-3">
+          <button class="btn btn-outline-danger" onclick="changeQty('pasta', -1)">-</button>
+          <input type="text" id="pasta-qty" value="1" class="form-control text-center mx-2" style="width:60px;" readonly>
+          <button class="btn btn-outline-success" onclick="changeQty('pasta', 1)">+</button>
+        </div>
+        <button class="btn btn-danger w-100" onclick="addToCart('Alfredo Pasta', 219, document.getElementById('pasta-qty').value)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+        <!-- Card 5 -->
+        <!-- Product Card -->
+<div class="col-md-4" data-category="Desserts" data-name="Chocolate Lava Cake">
+  <div class="card menu-card text-center">
+    <img src="C:\WT\self learning\rama\images\cake.jpeg?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="Chocolate Lava Cake">
+    <div class="card-body">
+      <h5 class="card-title">
+        Chocolate Lava Cake 
+        <span class="badge bg-success price-badge">₹149</span>
+      </h5>
+      <p class="card-text text-muted">Warm, gooey chocolate dessert.</p>
+      <div class="d-flex gap-2 justify-content-center">
+        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#dessertModal">Details</button>
+        <button class="btn btn-primary" onclick="addToCart('Chocolate Lava Cake', 149, 1)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Details Modal -->
+<div class="modal fade" id="dessertModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Chocolate Lava Cake</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Chocolate Lava Cake— tasty & fresh. Order now!</p>
+        <h4>₹149</h4>
+        <div class="d-flex justify-content-center align-items-center my-3">
+          <button class="btn btn-outline-danger" onclick="changeQty('dessert', -1)">-</button>
+          <input type="text" id="dessert-qty" value="1" class="form-control text-center mx-2" style="width:60px;" readonly>
+          <button class="btn btn-outline-success" onclick="changeQty('dessert', 1)">+</button>
+        </div>
+        <button class="btn btn-danger w-100" onclick="addToCart('Chocolate Lava Cake', 149, document.getElementById('dessert-qty').value)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+     <!-- Card 6 -->
+     <!-- Product Card -->
+<div class="col-md-4" data-category="Healthy" data-name="Fresh Orange Juice">
+  <div class="card menu-card text-center">
+    <img src="C:\WT\self learning\rama\images\juice.jpeg?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="Fresh Orange Juice">
+    <div class="card-body">
+      <h5 class="card-title">
+       Fresh Orange Juice
+        <span class="badge bg-success price-badge">₹89</span>
+      </h5>
+      <p class="card-text text-muted">Cold-pressed and zesty.</p>
+      <div class="d-flex gap-2 justify-content-center">
+        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#juiceModal">Details</button>
+        <button class="btn btn-primary" onclick="addToCart('Fresh Orange Juice', 89, 1)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Details Modal -->
+<div class="modal fade" id="juiceModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Fresh Orange Juice</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Fresh Orange Juice — tasty & fresh. Order now!</p>
+        <h4>₹89</h4>
+        <div class="d-flex justify-content-center align-items-center my-3">
+          <button class="btn btn-outline-danger" onclick="changeQty('juice', -1)">-</button>
+          <input type="text" id="juice-qty" value="1" class="form-control text-center mx-2" style="width:60px;" readonly>
+          <button class="btn btn-outline-success" onclick="changeQty('juice', 1)">+</button>
+        </div>
+        <button class="btn btn-danger w-100" onclick="addToCart('Fresh Orange Juice', 89, document.getElementById('juice-qty').value)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Card 2: Dosa -->
+<div class="col-md-4" data-category="Desi Delights" data-name="Masala Dosa">
+  <div class="card menu-card text-center">
+    <img src="C:\WT\self learning\rama\images\dosa.jpeg?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="Dosa">
+    <div class="card-body">
+      <h5 class="card-title">
+        Masala Dosa 
+        <span class="badge bg-success price-badge">₹120</span>
+      </h5>
+      <p class="card-text text-muted">Crispy dosa stuffed with spiced potato filling.</p>
+      <div class="d-flex gap-2 justify-content-center">
+        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#dosaModal">Details</button>
+        <button class="btn btn-primary" onclick="addToCart('Masala Dosa', 120, 1)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="dosaModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Masala Dosa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Delicious South Indian dosa with chutney & sambar.</p>
+        <h4>₹120</h4>
+        <div class="d-flex justify-content-center align-items-center my-3">
+          <button class="btn btn-outline-danger" onclick="changeQty('dosa', -1)">-</button>
+          <input type="text" id="dosa-qty" value="1" class="form-control text-center mx-2" style="width:60px;" readonly>
+          <button class="btn btn-outline-success" onclick="changeQty('dosa', 1)">+</button>
+        </div>
+        <button class="btn btn-danger w-100" onclick="addToCart('Masala Dosa', 120, document.getElementById('dosa-qty').value)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Card 3: Pav Bhaji -->
+<div class="col-md-4" data-category="Desi Delights" data-name="Pav Bhaji">
+  <div class="card menu-card text-center">
+    <img src="C:\WT\self learning\rama\images\pav.jpeg?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="Pav Bhaji">
+    <div class="card-body">
+      <h5 class="card-title">
+        Pav Bhaji 
+        <span class="badge bg-success price-badge">₹150</span>
+      </h5>
+      <p class="card-text text-muted">Mumbai’s favorite street food with buttered pav.</p>
+      <div class="d-flex gap-2 justify-content-center">
+        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#pavModal">Details</button>
+        <button class="btn btn-primary" onclick="addToCart('Pav Bhaji', 150, 1)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="pavModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Pav Bhaji</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Spicy bhaji with soft pav and extra butter.</p>
+        <h4>₹150</h4>
+        <div class="d-flex justify-content-center align-items-center my-3">
+          <button class="btn btn-outline-danger" onclick="changeQty('pav', -1)">-</button>
+          <input type="text" id="pav-qty" value="1" class="form-control text-center mx-2" style="width:60px;" readonly>
+          <button class="btn btn-outline-success" onclick="changeQty('pav', 1)">+</button>
+        </div>
+        <button class="btn btn-danger w-100" onclick="addToCart('Pav Bhaji', 150, document.getElementById('pav-qty').value)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Card 4: Biryani -->
+<div class="col-md-4" data-category="Desi Delights" data-name="Chicken Biryani">
+  <div class="card menu-card text-center">
+    <img src="C:\WT\self learning\rama\images\biryani.jpeg?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="Biryani">
+    <div class="card-body">
+      <h5 class="card-title">
+        Chicken Biryani 
+        <span class="badge bg-success price-badge">₹250</span>
+      </h5>
+      <p class="card-text text-muted">Aromatic rice with flavorful chicken & spices.</p>
+      <div class="d-flex gap-2 justify-content-center">
+        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#biryaniModal">Details</button>
+        <button class="btn btn-primary" onclick="addToCart('Chicken Biryani', 250, 1)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="biryaniModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Chicken Biryani</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Fragrant rice dish with marinated chicken & saffron.</p>
+        <h4>₹250</h4>
+        <div class="d-flex justify-content-center align-items-center my-3">
+          <button class="btn btn-outline-danger" onclick="changeQty('biryani', -1)">-</button>
+          <input type="text" id="biryani-qty" value="1" class="form-control text-center mx-2" style="width:60px;" readonly>
+          <button class="btn btn-outline-success" onclick="changeQty('biryani', 1)">+</button>
+        </div>
+        <button class="btn btn-danger w-100" onclick="addToCart('Chicken Biryani', 250, document.getElementById('biryani-qty').value)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Card 5: Triple Schezwan Fried Rice -->
+<div class="col-md-4" data-category="Global Bites" data-name="Triple Schezwan Fried Rice">
+  <div class="card menu-card text-center">
+    <img src="C:\WT\self learning\rama\images\rice.jpeg?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="Triple Schezwan Fried Rice">
+    <div class="card-body">
+      <h5 class="card-title">
+        Triple Schezwan Fried Rice 
+        <span class="badge bg-success price-badge">₹180</span>
+      </h5>
+      <p class="card-text text-muted">Spicy Indo-Chinese rice with noodles & gravy.</p>
+      <div class="d-flex gap-2 justify-content-center">
+        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#schezwanModal">Details</button>
+        <button class="btn btn-primary" onclick="addToCart('Triple Schezwan Fried Rice', 180, 1)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="schezwanModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Triple Schezwan Fried Rice</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Perfect combo of rice, noodles, and spicy Schezwan sauce.</p>
+        <h4>₹180</h4>
+        <div class="d-flex justify-content-center align-items-center my-3">
+          <button class="btn btn-outline-danger" onclick="changeQty('schezwan', -1)">-</button>
+          <input type="text" id="schezwan-qty" value="1" class="form-control text-center mx-2" style="width:60px;" readonly>
+          <button class="btn btn-outline-success" onclick="changeQty('schezwan', 1)">+</button>
+        </div>
+        <button class="btn btn-danger w-100" onclick="addToCart('Triple Schezwan Fried Rice', 180, document.getElementById('schezwan-qty').value)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Card 6: Manchow Soup -->
+<div class="col-md-4" data-category="Global Bites" data-name="Manchow Soup">
+  <div class="card menu-card text-center">
+    <img src="C:\WT\self learning\rama\images\soup.jpeg?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="Manchow Soup">
+    <div class="card-body">
+      <h5 class="card-title">
+        Manchow Soup 
+        <span class="badge bg-success price-badge">₹90</span>
+      </h5>
+      <p class="card-text text-muted">Hot & spicy Indo-Chinese soup with crispy noodles.</p>
+      <div class="d-flex gap-2 justify-content-center">
+        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#soupModal">Details</button>
+        <button class="btn btn-primary" onclick="addToCart('Manchow Soup', 90, 1)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="soupModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Manchow Soup</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Warm, spicy soup served with crunchy noodles.</p>
+        <h4>₹90</h4>
+        <div class="d-flex justify-content-center align-items-center my-3">
+          <button class="btn btn-outline-danger" onclick="changeQty('soup', -1)">-</button>
+          <input type="text" id="soup-qty" value="1" class="form-control text-center mx-2" style="width:60px;" readonly>
+          <button class="btn btn-outline-success" onclick="changeQty('soup', 1)">+</button>
+        </div>
+        <button class="btn btn-danger w-100" onclick="addToCart('Manchow Soup', 90, document.getElementById('soup-qty').value)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Card: Milkshake -->
+<div class="col-md-4" data-category="Desserts" data-name="Milkshake">
+  <div class="card menu-card text-center">
+    <img src="C:\WT\self learning\rama\images\milkshake.jpeg?auto=format&fit=crop&w=600&q=80" class="card-img-top" alt="Milkshake">
+    <div class="card-body">
+      <h5 class="card-title">
+        Milkshake 
+        <span class="badge bg-success price-badge">₹100</span>
+      </h5>
+      <p class="card-text text-muted">Chilled and creamy milkshake with rich flavor.</p>
+      <div class="d-flex gap-2 justify-content-center">
+        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#shakeModal">Details</button>
+        <button class="btn btn-primary" onclick="addToCart('Milkshake', 100, 1)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal: Milkshake -->
+<div class="modal fade" id="shakeModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Milkshake</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Creamy and chilled milkshake to refresh your mood!</p>
+        <h4>₹100</h4>
+        <div class="d-flex justify-content-center align-items-center my-3">
+          <button class="btn btn-outline-danger" onclick="changeQty('shake', -1)">-</button>
+          <input type="text" id="shake-qty" value="1" class="form-control text-center mx-2" style="width:60px;" readonly>
+          <button class="btn btn-outline-success" onclick="changeQty('shake', 1)">+</button>
+        </div>
+        <button class="btn btn-danger w-100" onclick="addToCart('Milkshake', 100, document.getElementById('shake-qty').value)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </div>
+  </main>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Cart JS -->
+  <script>
+    let cart = [];
+
+    function changeQty(item, delta) {
+      const qtyInput = document.getElementById(`${item}-qty`);
+      let qty = parseInt(qtyInput.value);
+      qty += delta;
+      if (qty < 1) qty = 1;
+      qtyInput.value = qty;
+    }
+
+    function addToCart(name, price, qty = 1) {
+      qty = parseInt(qty);
+      let item = cart.find(i => i.name === name);
+      if (item) {
+        item.qty += qty;
+        item.total = item.qty * item.price;
+      } else {
+        cart.push({ name, price, qty, total: price * qty });
+      }
+      updateCart();
+      alert(name + " added to cart!");
+    }
+
+    function removeFromCart(name) {
+      cart = cart.filter(i => i.name !== name);
+      updateCart();
+    }
+
+// Update quantity of an item
+function updateQty(name, delta) {
+  let item = cart.find(i => i.name === name);
+  if (!item) return;
+
+  item.qty += delta;
+  if (item.qty < 1) item.qty = 1; // Prevent 0 or negative
+  item.total = item.qty * item.price;
+
+  updateCart();
+}
+
+
+   // Update cart display
+function updateCart() {
+  const tbody = document.getElementById('cart-items');
+  tbody.innerHTML = '';
+  let total = 0;
+
+  cart.forEach(item => {
+    total += item.total;
+    tbody.innerHTML += `
+      <tr>
+        <td>${item.name}</td>
+        <td>
+          <div class="d-flex justify-content-center align-items-center">
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="updateQty('${item.name}', -1)">−</button>
+            <span id="qty-${item.name}" class="px-2">${item.qty}</span>
+            <button class="btn btn-sm btn-outline-secondary ms-1" onclick="updateQty('${item.name}', 1)">+</button>
+          </div>
+        </td>
+        <td>₹${item.price}</td>
+        <td>₹${item.total}</td>
+        <td>
+          <button class="btn btn-danger btn-sm" onclick="removeFromCart('${item.name}')">Remove</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  document.getElementById('cart-total').innerText = total;
+  const cartCount = document.getElementById('cart-count');
+  if (cartCount) cartCount.innerText = cart.length; // only update if badge exists
+}
+
+
+    window.addEventListener('beforeunload', () => {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    });
+
+    window.addEventListener('load', () => {
+      let savedCart = localStorage.getItem('cart');
+      if (savedCart) cart = JSON.parse(savedCart);
+      updateCart();
+    });
+
+    // Filtering & Search
+    const menuGrid = document.getElementById('menuGrid');
+    const categoryDropdown = document.getElementById('categoryDropdown');
+    const searchInput = document.getElementById('menuSearch');
+
+    function filterMenu() {
+      const selectedCategory = categoryDropdown.textContent.replace('Category: ', '').trim();
+      const searchTerm = searchInput.value.toLowerCase();
+
+      const cards = menuGrid.querySelectorAll('.col-md-4');
+      cards.forEach(card => {
+        const category = card.getAttribute('data-category');
+        const name = card.getAttribute('data-name').toLowerCase();
+        const categoryMatch = selectedCategory === 'All' || category === selectedCategory;
+        const searchMatch = name.includes(searchTerm);
+        card.style.display = categoryMatch && searchMatch ? 'block' : 'none';
+      });
+    }
+
+    document.querySelectorAll('#categoryDropdown + .dropdown-menu .dropdown-item').forEach(item => {
+      item.addEventListener('click', e => {
+        e.preventDefault();
+        categoryDropdown.textContent = 'Category: ' + item.textContent;
+        filterMenu();
+      });
+    });
+
+    document.getElementById('searchBtn').addEventListener('click', e => {
+      e.preventDefault();
+      filterMenu();
+    });
+
+    searchInput.addEventListener('input', filterMenu);
+    window.addEventListener("load", filterMenu);
+  </script>
+</body>
+</html>

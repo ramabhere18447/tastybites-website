@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TastyBite — Restaurants</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1404/1404945.png">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body { background: #fff0f5; }
+    .rest-card img { height:140px; object-fit:cover; border-radius:6px; }
+    .filter-row { gap:12px; margin-bottom:18px;}
+    .rating { color:#ffb703; font-weight:600; }
+  </style>
+</head>
+
+<!-- Cart Modal -->
+<div class="modal fade" id="cartModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Your Cart</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-bordered text-center">
+          <thead class="table-dark">
+            <tr>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Price</th>
+              <th>Total</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="cart-items">
+            <!-- Cart items will appear here -->
+          </tbody>
+        </table>
+        <h4>Total: ₹<span id="cart-total">0</span></h4>
+      </div>
+      <div class="modal-footer">
+        <a href="billing.html" class="btn btn-success">Proceed to Checkout</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let cart = [];
+
+function addToCart(name, price) {
+  let item = cart.find(i => i.name === name);
+  if(item){
+    item.qty++;
+    item.total = item.qty * item.price;
+  } else {
+    cart.push({name: name, price: price, qty: 1, total: price});
+  }
+  updateCart();
+}
+
+function removeFromCart(name) {
+  cart = cart.filter(i => i.name !== name);
+  updateCart();
+}
+
+// Update quantity of an item
+function updateQty(name, delta) {
+  let item = cart.find(i => i.name === name);
+  if (!item) return;
+
+  item.qty += delta;
+  if (item.qty < 1) item.qty = 1; // Prevent 0 or negative
+  item.total = item.qty * item.price;
+
+  updateCart();
+}
+
+// Update cart display
+function updateCart() {
+  const tbody = document.getElementById('cart-items');
+  tbody.innerHTML = '';
+  let total = 0;
+
+  cart.forEach(item => {
+    total += item.total;
+    tbody.innerHTML += `
+      <tr>
+        <td>${item.name}</td>
+        <td>
+          <div class="d-flex justify-content-center align-items-center">
+            <button class="btn btn-sm btn-outline-secondary me-1" onclick="updateQty('${item.name}', -1)">−</button>
+            <span id="qty-${item.name}" class="px-2">${item.qty}</span>
+            <button class="btn btn-sm btn-outline-secondary ms-1" onclick="updateQty('${item.name}', 1)">+</button>
+          </div>
+        </td>
+        <td>₹${item.price}</td>
+        <td>₹${item.total}</td>
+        <td>
+          <button class="btn btn-danger btn-sm" onclick="removeFromCart('${item.name}')">Remove</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  document.getElementById('cart-total').innerText = total;
+  const cartCount = document.getElementById('cart-count');
+  if (cartCount) cartCount.innerText = cart.length; // only update if badge exists
+}
+
+// Save cart to localStorage to persist on billing page
+window.addEventListener('beforeunload', () => {
+  localStorage.setItem('cart', JSON.stringify(cart));
+});
+
+window.addEventListener('load', () => {
+  let savedCart = localStorage.getItem('cart');
+  if(savedCart) cart = JSON.parse(savedCart);
+  updateCart();
+});
+</script>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-danger sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">
+        <img src="https://cdn-icons-png.flaticon.com/512/1404/1404945.png" width="28" height="28" alt="logo"> TastyBite
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navRest">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navRest">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="menu.html">Menu</a></li>
+          <li class="nav-item"><a class="nav-link active" href="restaurants.html">Restaurants</a></li>
+          <li class="nav-item"><a class="nav-link" href="offers.html">Offers</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item">
+    <button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#cartModal">
+      🛒 Cart (<span id="cart-count">0</span>)
+    </button>
+  </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-4">
+    <div class="row g-2 mb-3 align-items-center">
+  <!-- Cuisine dropdown -->
+  <div class="col-12 col-md-3">
+    <div class="btn-group w-100">
+      <button class="btn btn-outline-danger dropdown-toggle w-100" id="cuisineDropdown" data-bs-toggle="dropdown">
+        Cuisine: All
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item cuisine-option" href="#" data-cuisine="All">All</a></li>
+        <li><a class="dropdown-item cuisine-option" href="#" data-cuisine="Indian">Indian</a></li>
+        <li><a class="dropdown-item cuisine-option" href="#" data-cuisine="Italian">Italian</a></li>
+        <li><a class="dropdown-item cuisine-option" href="#" data-cuisine="American">American</a></li>
+        <li><a class="dropdown-item cuisine-option" href="#" data-cuisine="Chinese">Chinese</a></li>
+        <li><a class="dropdown-item cuisine-option" href="#" data-cuisine="Desserts">Desserts</a></li>
+        <li><a class="dropdown-item cuisine-option" href="#" data-cuisine="South Indian">South Indian</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Sort by dropdown -->
+  <div class="col-12 col-md-3">
+    <div class="btn-group w-100">
+      <button class="btn btn-outline-danger dropdown-toggle w-100" id="sortDropdown" data-bs-toggle="dropdown">
+        Sort by
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item sort-option" href="#" data-sort="rating">Rating</a></li>
+        <li><a class="dropdown-item sort-option" href="#" data-sort="time">Delivery Time</a></li>
+        <li><a class="dropdown-item sort-option" href="#" data-sort="costLow">Cost: Low to High</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Add restaurant button -->
+  <div class="col-12 col-md-3 ms-auto text-md-end">
+    <button class="btn btn-danger w-100 w-md-auto" data-bs-toggle="modal" data-bs-target="#addRestModal">
+      Add Restaurant
+    </button>
+  </div>
+</div>
+
+
+    <!-- Restaurants list (cards) -->
+<div class="row g-3" id="restaurantsGrid">
+  <div class="col-md-6">
+    <div class="d-flex gap-3 p-3 bg-white shadow-sm rest-card align-items-center">
+      <img src="C:\WT\self learning\rama\images\rest1.jpeg?restaurant" alt="R1" width="180" class="rounded">
+      <div>
+        <h5 class="mb-1">The Spice Kitchen <span class="badge bg-success ms-2">Open</span></h5>
+        <p class="mb-1 text-muted">Indian • 25–35 mins • ₹200 for two</p>
+        <p class="mb-1">Rating: <span class="rating">4.4 ★</span></p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#restModal" data-name="The Spice Kitchen">View Menu</button>
+          <a class="btn btn-danger btn-sm" href="#">Order</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="d-flex gap-3 p-3 bg-white shadow-sm rest-card align-items-center">
+      <img src="C:\WT\self learning\rama\images\rest2.jpeg?cafe" alt="R2" width="180" class="rounded">
+      <div>
+        <h5 class="mb-1">Pizza & Chill <span class="badge bg-secondary ms-2">Closed</span></h5>
+        <p class="mb-1 text-muted">Italian • 15–20 mins • ₹400 for two</p>
+        <p class="mb-1">Rating: <span class="rating">4.1 ★</span></p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#restModal" data-name="Pizza & Chill">View Menu</button>
+          <a class="btn btn-danger btn-sm" href="#">Order</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="d-flex gap-3 p-3 bg-white shadow-sm rest-card align-items-center">
+      <img src="C:\WT\self learning\rama\images\rest3.jpg?burger-shop" alt="R3" width="180" class="rounded">
+      <div>
+        <h5 class="mb-1">Burger Barn <span class="badge bg-success ms-2">Open</span></h5>
+        <p class="mb-1 text-muted">American • 20–30 mins • ₹300 for two</p>
+        <p class="mb-1">Rating: <span class="rating">4.5 ★</span></p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#restModal" data-name="Burger Barn">View Menu</button>
+          <a class="btn btn-danger btn-sm" href="#">Order</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Restaurant 4 -->
+  <div class="col-md-6">
+    <div class="d-flex gap-3 p-3 bg-white shadow-sm rest-card align-items-center">
+      <img src="C:\WT\self learning\rama\images\rest4.jpeg?biryani" alt="R4" width="180" class="rounded">
+      <div>
+        <h5 class="mb-1">Royal Biryani House <span class="badge bg-success ms-2">Open</span></h5>
+        <p class="mb-1 text-muted">Indian • 30–40 mins • ₹500 for two</p>
+        <p class="mb-1">Rating: <span class="rating">4.7 ★</span></p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#restModal" data-name="Royal Biryani House">View Menu</button>
+          <a class="btn btn-danger btn-sm" href="#">Order</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Restaurant 5 -->
+  <div class="col-md-6">
+    <div class="d-flex gap-3 p-3 bg-white shadow-sm rest-card align-items-center">
+      <img src="C:\WT\self learning\rama\images\rest5.jpeg?chinese-food" alt="R5" width="180" class="rounded">
+      <div>
+        <h5 class="mb-1">Golden Chopsticks <span class="badge bg-success ms-2">Open</span></h5>
+        <p class="mb-1 text-muted">Chinese • 20–25 mins • ₹250 for two</p>
+        <p class="mb-1">Rating: <span class="rating">4.2 ★</span></p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#restModal" data-name="Golden Chopsticks">View Menu</button>
+          <a class="btn btn-danger btn-sm" href="#">Order</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Restaurant 6 -->
+  <div class="col-md-6">
+    <div class="d-flex gap-3 p-3 bg-white shadow-sm rest-card align-items-center">
+      <img src="C:\WT\self learning\rama\images\rest6.jpeg?icecream" alt="R6" width="180" class="rounded">
+      <div>
+        <h5 class="mb-1">Cool Creamery <span class="badge bg-success ms-2">Open</span></h5>
+        <p class="mb-1 text-muted">Desserts • 10–15 mins • ₹150 for two</p>
+        <p class="mb-1">Rating: <span class="rating">4.3 ★</span></p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#restModal" data-name="Cool Creamery">View Menu</button>
+          <a class="btn btn-danger btn-sm" href="#">Order</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Restaurant 7 -->
+  <div class="col-md-6">
+    <div class="d-flex gap-3 p-3 bg-white shadow-sm rest-card align-items-center">
+      <img src="C:\WT\self learning\rama\images\rest7.jpeg?pasta" alt="R7" width="180" class="rounded">
+      <div>
+        <h5 class="mb-1">Pasta Lab <span class="badge bg-success ms-2">Open</span></h5>
+        <p class="mb-1 text-muted">Italian • 25–35 mins • ₹350 for two</p>
+        <p class="mb-1">Rating: <span class="rating">4.6 ★</span></p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#restModal" data-name="Pasta Lab">View Menu</button>
+          <a class="btn btn-danger btn-sm" href="#">Order</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Restaurant 8 -->
+  <div class="col-md-6">
+    <div class="d-flex gap-3 p-3 bg-white shadow-sm rest-card align-items-center">
+      <img src="C:\WT\self learning\rama\images\rest8.jpeg?south-indian-food" alt="R8" width="180" class="rounded">
+      <div>
+        <h5 class="mb-1">Malgudi <span class="badge bg-success ms-2">Open</span></h5>
+        <p class="mb-1 text-muted">South Indian • 20–30 mins • ₹220 for two</p>
+        <p class="mb-1">Rating: <span class="rating">4.5 ★</span></p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#restModal" data-name="Malgudi">View Menu</button>
+          <a class="btn btn-danger btn-sm" href="#">Order</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+ 
+
+    <!-- Pagination -->
+    <nav class="mt-4">
+      <ul class="pagination justify-content-center">
+        <li class="page-item disabled"><a class="page-link" href="#" id="prevPage">Prev </a></li>
+        <li class="page-item active"><a class="page-link" href="#" id="page1">1</a></li>
+        <li class="page-item"><a class="page-link" href="#" id="page2">2</a></li>
+        <li class="page-item"><a class="page-link" href="#" id="nextPage">Next</a></li>
+      </ul>
+    </nav>
+  </main>
+
+  <!-- Restaurant details modal -->
+  <div class="modal fade" id="restModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="restModalLabel">Restaurant</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="restInfo" class="mb-3">
+            <img id="restImg" src="https://source.unsplash.com/900x300/?food,restaurant" class="img-fluid rounded mb-3" alt="">
+            <p id="restDesc">Restaurant details and sample menu items will appear here.</p>
+          </div>
+          <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-action">Signature Dish 1 — ₹199</a>
+            <a href="#" class="list-group-item list-group-item-action">Signature Dish 2 — ₹249</a>
+            <a href="#" class="list-group-item list-group-item-action">Dessert — ₹99</a>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button class="btn btn-danger">Order from here</button>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+ 
+  <!-- Add restaurant modal (demo form) -->
+  <div class="modal fade" id="addRestModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form>
+          <div class="modal-header">
+            <h5 class="modal-title">Add Restaurant</h5>
+            <button class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3"><label class="form-label">Name</label><input class="form-control"></div>
+            <div class="mb-3"><label class="form-label">Cuisine</label><input class="form-control"></div>
+            <div class="mb-3"><label class="form-label">Phone</label><input class="form-control"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button class="btn btn-danger" type="submit">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // populate restaurant modal title & sample content
+    const restModal = document.getElementById('restModal');
+    restModal.addEventListener('show.bs.modal', function(e){
+      const btn = e.relatedTarget;
+      const name = btn.getAttribute('data-name') || 'Restaurant';
+      document.getElementById('restModalLabel').textContent = name;
+      document.getElementById('restDesc').textContent = name + ' — delicious food & great service.';
+      document.getElementById('restImg').src = 'https://source.unsplash.com/900x300/?' + encodeURIComponent(name);
+    });
+  </script>
+
+<script>
+const itemsPerPage = 4;  // show 4 restaurants per page
+let currentPage = 1;
+
+function showPage(page) {
+  const restaurants = document.querySelectorAll("#restaurantsGrid .col-md-6");
+  const totalPages = Math.ceil(restaurants.length / itemsPerPage);
+
+  restaurants.forEach((rest, index) => {
+    rest.style.display =
+      index >= (page - 1) * itemsPerPage && index < page * itemsPerPage
+        ? "block"
+        : "none";
+  });
+
+  // Update active pagination
+  document.querySelectorAll(".pagination .page-item").forEach(li => li.classList.remove("active"));
+  document.getElementById("page" + page).parentElement.classList.add("active");
+
+  // Disable prev/next at limits
+  document.getElementById("prevPage").parentElement.classList.toggle("disabled", page === 1);
+  document.getElementById("nextPage").parentElement.classList.toggle("disabled", page === totalPages);
+
+  currentPage = page;
+}
+
+document.getElementById("page1").addEventListener("click", e => { e.preventDefault(); showPage(1); });
+document.getElementById("page2").addEventListener("click", e => { e.preventDefault(); showPage(2); });
+document.getElementById("prevPage").addEventListener("click", e => { e.preventDefault(); if (currentPage > 1) showPage(currentPage - 1); });
+document.getElementById("nextPage").addEventListener("click", e => { e.preventDefault(); if (currentPage < Math.ceil(document.querySelectorAll('#restaurantsGrid .col-md-6').length / itemsPerPage)) showPage(currentPage + 1); });
+
+window.addEventListener("load", () => showPage(1));
+</script>
+
+<!-- 🔹 NEW Cuisine + Sort Script -->
+  <script>
+    function filterAndSort() {
+      let selectedCuisine = document.getElementById("cuisineDropdown").textContent.replace("Cuisine: ", "");
+      let selectedSort = document.getElementById("sortDropdown").textContent.replace("Sort by ", "").trim();
+
+      let restaurants = Array.from(document.querySelectorAll("#restaurantsGrid .col-md-6"));
+
+      // Filter by cuisine
+      restaurants.forEach(card => {
+        let text = card.innerText;
+        if (selectedCuisine === "All" || text.includes(selectedCuisine)) {
+          card.style.display = "block";
+        } else {
+          card.style.display = "none";
+        }
+      });
+
+      // Sort
+      if (selectedSort !== "Sort by") {
+        restaurants.sort((a, b) => {
+          let textA = a.innerText;
+          let textB = b.innerText;
+
+          if (selectedSort === "Rating") {
+            let ratingA = parseFloat(textA.match(/([0-9]\.[0-9])/)[0]);
+            let ratingB = parseFloat(textB.match(/([0-9]\.[0-9])/)[0]);
+            return ratingB - ratingA;
+          }
+          if (selectedSort === "Delivery Time") {
+            let timeA = parseInt(textA.match(/([0-9]+)–/)[1]);
+            let timeB = parseInt(textB.match(/([0-9]+)–/)[1]);
+            return timeA - timeB;
+          }
+          if (selectedSort === "Cost: Low to High") {
+            let costA = parseInt(textA.match(/₹([0-9]+)/)[1]);
+            let costB = parseInt(textB.match(/₹([0-9]+)/)[1]);
+            return costA - costB;
+          }
+        });
+
+        // Re-append sorted
+        let grid = document.getElementById("restaurantsGrid");
+        restaurants.forEach(rest => grid.appendChild(rest));
+      }
+    }
+
+    // Cuisine filter
+    document.querySelectorAll(".cuisine-option").forEach(option => {
+      option.addEventListener("click", function(e) {
+        e.preventDefault();
+        document.getElementById("cuisineDropdown").textContent = "Cuisine: " + this.dataset.cuisine;
+        filterAndSort();
+      });
+    });
+
+    // Sort option
+    document.querySelectorAll(".sort-option").forEach(option => {
+      option.addEventListener("click", function(e) {
+        e.preventDefault();
+        document.getElementById("sortDropdown").textContent = "Sort by " + this.textContent;
+        filterAndSort();
+      });
+    });
+  </script>
+</body>
+</html>
